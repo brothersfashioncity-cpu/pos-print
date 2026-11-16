@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BrothersFC Gift Hub - হোম ও কুপন পোর্টাল</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      font-family: 'Hind Siliguri', sans-serif;
+      background: radial-gradient(circle at top, #064e3b 0%, #020617 65%);
+      color: #f8fafc;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    .marquee-container {
+      width: 100%;
+      overflow: hidden;
+      padding: 9px 0;
+      border-bottom: 1px solid rgba(251, 191, 36, 0.25);
+      position: relative;
+      z-index: 40;
+    }
+    .marquee-content {
+      display: inline-block;
+      white-space: nowrap;
+      font-size: 14px;
+      font-weight: 600;
+      padding-left: 100%;
+      animation: slideLeft 30s linear infinite;
+    }
+    .marquee-content:hover {
+      animation-play-state: paused;
+    }
+    @keyframes slideLeft {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-100%); }
+    }
+    @keyframes floatGift {
+      0%, 100% { transform: translateY(0px) scale(1); }
+      50% { transform: translateY(-10px) scale(1.04); }
+    }
+    .gift-float {
+      animation: floatGift 2.2s ease-in-out infinite;
+    }
+    @keyframes revealCard {
+      0% { opacity: 0; transform: scale(0.7) translateY(20px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .reveal-anim {
+      animation: revealCard 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+    #confetti-canvas {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 9999;
+    }
+  </style>
+</head>
+<body class="flex flex-col justify-between">
+
+  <canvas id="confetti-canvas"></canvas>
+
+  <div>
+    <!-- টপ চলন্ত নোটিশ -->
+    <div class="marquee-container" style="background-color: #022c22;">
+      <div id="top-marquee-text" class="marquee-content" style="color: #fde047;">
+        ব্রাদার্স ফ্যাশন সিটি, মাল্টি ব্রান্ড শো-রুম — এখানে পাবেন দেশের নাম্বার ওয়ান সকল ব্রান্ড এর তৈরি পোষাক। ঠিকানাঃ কর্তিমারী বাজার (গ্রামীণ ব্যাংক এর নিচ তলা), রৌমারী। যোগাযোগঃ ০১৭০০-৭৮৭০৯২। ওয়েবসাইটঃ bfcbd.shop। ধন্যবাদ!
+      </div>
+    </div>
+
+    <!-- হেডার -->
+    <header class="bg-slate-950/75 backdrop-blur-md border-b border-emerald-800/40 sticky top-0 z-30">
+      <div class="max-w-xl mx-auto px-4 py-3.5 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-amber-400 via-yellow-500 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/20 text-slate-950">
+            <i class="fa-solid fa-crown text-xl"></i>
+          </div>
+          <div>
+            <h1 class="text-xl font-bold tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-yellow-500">
+              BrothersFC Gift Hub
+            </h1>
+            <p class="text-[11px] text-emerald-300/80 font-medium">ব্রাদার্স ফ্যাশন সিটি — লাইভ কুপন ও পোর্টাল</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button id="nav-home-btn" onclick="switchView('home')" class="px-3 py-1.5 rounded-xl bg-amber-400 text-slate-950 text-xs font-bold flex items-center gap-1.5 transition">
+            <i class="fa-solid fa-house"></i> হোম
+          </button>
+          <button id="nav-portal-btn" onclick="switchView('portal')" class="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-emerald-700/50 text-xs font-bold text-emerald-300 flex items-center gap-1.5 transition">
+            <i class="fa-solid fa-gift"></i> কুপন ভাঙ্গান
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- ================= ১. হোম / ইনডেক্স প্যানেল (লাইভ কুপন ও গিফট ডিসপ্লে) ================= -->
+    <main id="view-home" class="max-w-md mx-auto px-4 py-6 space-y-5">
+      
+      <!-- ওয়েলকাম ব্যানার -->
+      <div class="bg-gradient-to-br from-slate-900/95 via-emerald-950/80 to-slate-900/95 border border-emerald-800/60 rounded-3xl p-6 text-center shadow-2xl relative overflow-hidden">
+        <div class="absolute -top-12 -right-12 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl pointer-events-none"></div>
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-400/10 border border-amber-400/30 text-amber-300 text-xs font-semibold mb-2">
+          <i class="fa-solid fa-bullhorn"></i> লাইভ গিফট ও কুপন ফিড
+        </span>
+        <h2 class="text-2xl font-bold text-white mb-1">স্বাগতম BrothersFC-তে!</h2>
+        <p class="text-xs text-slate-300">নিচের লাইভ লিস্ট থেকে দেখুন কার কোন কুপনে কী উপহার চলছে। আপনার কুপন ভাঙ্গাতে উপরে <strong>"কুপন ভাঙ্গান"</strong> বাটনে ক্লিক করুন।</p>
+        
+        <button onclick="switchView('portal')" class="mt-4 w-full py-3 rounded-2xl bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-500 hover:brightness-110 text-slate-950 font-extrabold text-sm shadow-lg shadow-amber-500/20 transition flex items-center justify-center gap-2">
+          <i class="fa-solid fa-ticket"></i> আমার কুপন ভাঙ্গাতে এখানে যান
+        </button>
+      </div>
+
+      <!-- লাইভ চলমান কুপন ও গিফট মারকিউ / কার্ড লিস্ট -->
+      <div class="bg-slate-900/90 border border-emerald-800/50 rounded-3xl p-5 space-y-3 shadow-xl">
+        <div class="flex items-center justify-between">
+          <h3 class="text-sm font-bold text-amber-400 flex items-center gap-2">
+            <i class="fa-solid fa-bolt text-yellow-400 animate-pulse"></i> চলমান কুপন ও গিফট তালিকা
+          </h3>
+          <span class="text-[11px] text-emerald-400 font-semibold bg-emerald-950/80 px-2.5 py-1 rounded-full border border-emerald-700/50">
+            <i class="fa-solid fa-circle text-[8px] text-emerald-400 animate-ping mr-1"></i> লাইভ আপডেট
+          </span>
+        </div>
+        <p class="text-[11px] text-slate-400">শো-রুমের কাস্টমারদের জন্য ইস্যুকৃত সকল লাইভ কুপন ও তাদের উপহার এখানে প্রদর্শিত হচ্ছে (নম্বর গোপন রাখা হয়েছে):</p>
+        
+        <!-- লাইভ কুপন কার্ড কন্টেইনার -->
+        <div id="live-coupons-container" class="space-y-2.5 max-h-[380px] overflow-y-auto pr-1"></div>
+      </div>
+
+    </main>
+
+    <!-- ================= ২. কাস্টমার পোর্টাল প্যানেল (কুপন ভাঙ্গানোর পেজ) ================= -->
+    <main id="view-portal" class="hidden max-w-md mx-auto px-4 py-8">
+      <div class="bg-slate-900/90 backdrop-blur border border-emerald-800/50 rounded-3xl p-6 shadow-2xl relative overflow-hidden">
+        
+        <div class="absolute -top-16 -right-16 w-40 h-40 bg-amber-500/10 rounded-full blur-2xl pointer-events-none"></div>
+
+        <!-- কুপন চেক স্টেজ -->
+        <div id="coupon-input-stage">
+          <div class="text-center mb-6">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-400/10 border border-amber-400/30 text-amber-300 text-xs font-semibold mb-2.5">
+              <i class="fa-solid fa-ticket"></i> কুপন গিফট পোর্টাল
+            </span>
+            <h2 class="text-2xl font-bold text-white">আপনার কুপন ও তথ্য দিন</h2>
+            <p class="text-xs text-slate-400 mt-1">১৫০০ টাকা বা তার বেশি কেনাকাটায় নিশ্চিত উপহার জিতুন</p>
+          </div>
+
+          <div class="space-y-4">
+            <div>
+              <label class="block text-xs font-semibold text-emerald-300 mb-1">
+                কুপন / মেমো নম্বর (বড় হাতের অক্ষরে) <span class="text-rose-400">*</span>
+              </label>
+              <div class="relative">
+                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-amber-400 font-bold text-lg">#</span>
+                <input type="text" id="cust-coupon-input" placeholder="BFC2026-11340" class="w-full text-center text-lg tracking-wider font-bold bg-slate-950 border border-emerald-800/70 focus:border-amber-400 rounded-2xl py-3 px-8 text-amber-300 outline-none transition uppercase" />
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-emerald-300 mb-1">
+                মোবাইল নাম্বার <span class="text-rose-400">*</span>
+              </label>
+              <div class="relative">
+                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-400 text-sm">
+                  <i class="fa-solid fa-phone"></i>
+                </span>
+                <input type="tel" id="cust-phone-input" maxlength="11" placeholder="017XXXXXXXX" class="w-full bg-slate-950 border border-emerald-800/70 focus:border-amber-400 rounded-2xl py-3 pl-10 pr-4 text-sm font-bold text-white outline-none transition" />
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-emerald-300 mb-1">
+                কেনাকাটার টাকার পরিমাণ (৳) <span class="text-rose-400">*</span>
+              </label>
+              <div class="relative">
+                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-amber-400 font-bold text-base">৳</span>
+                <input type="number" id="cust-amount-input" min="1" placeholder="যেমন: 1500 বা 2000" class="w-full bg-slate-950 border border-emerald-800/70 focus:border-amber-400 rounded-2xl py-3 pl-10 pr-4 text-sm font-bold text-emerald-300 outline-none transition" />
+              </div>
+            </div>
+
+            <button id="verify-btn" onclick="checkCouponPrize()" class="w-full py-3.5 rounded-2xl bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-500 hover:brightness-110 text-slate-950 font-extrabold text-base shadow-lg shadow-amber-500/20 transition flex items-center justify-center gap-2 mt-2">
+              <i class="fa-solid fa-gift"></i> কুপন যাচাই করুন
+            </button>
+          </div>
+
+          <!-- এরর মেসেজ -->
+          <div id="cust-alert" class="hidden mt-4 p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs text-center font-medium leading-relaxed"></div>
+        </div>
+
+        <!-- গিফট বক্স ওপেনিং স্টেজ (১৫০০ টাকার কম হলে এখানে বক্স ক্লিক করলে আওতাভুক্ত না দেখাবে) -->
+        <div id="gift-tap-stage" class="hidden text-center py-6">
+          <p class="text-xs text-emerald-300 font-semibold mb-1">কুপন নম্বর: <span id="stage-coupon-no" class="text-amber-400 font-bold"></span></p>
+          <p class="text-[11px] text-slate-400 mb-4">মোবাইল: <span id="stage-cust-phone" class="text-slate-200"></span> • কেনাকাটা: <span id="stage-cust-amount" class="text-emerald-400 font-bold"></span></p>
+          
+          <div id="box-wrapper">
+            <h3 id="box-title-text" class="text-lg font-bold text-white mb-5">আপনার কুপনে স্পেশাল গিফট রয়েছে!</h3>
+            <div onclick="revealCouponGift()" class="cursor-pointer inline-block p-7 rounded-3xl bg-gradient-to-b from-amber-500/20 to-emerald-900/40 border-2 border-amber-400/50 gift-float select-none shadow-xl shadow-amber-500/10">
+              <i class="fa-solid fa-gift text-7xl text-amber-400 drop-shadow-[0_0_20px_rgba(251,191,36,0.5)]"></i>
+              <div class="mt-4">
+                <span id="box-btn-label" class="px-4 py-1.5 rounded-full bg-amber-400 text-slate-950 text-xs font-extrabold">
+                  বক্সটি খুলতে টাচ করুন 👆
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- পুরস্কার প্রকাশ স্টেজ -->
+        <div id="gift-result-stage" class="hidden text-center reveal-anim">
+          <div class="w-16 h-16 mx-auto rounded-2xl bg-amber-400/20 border border-amber-400/50 flex items-center justify-center mb-3">
+            <i class="fa-solid fa-trophy text-3xl text-amber-400"></i>
+          </div>
+          <p class="text-emerald-400 font-bold text-sm">🎉 অভিনন্দন, কুপন সফলভাবে ভাঙানো হয়েছে!</p>
+          <p class="text-xs text-slate-300 mt-1">
+            কুপন: <span id="res-coupon-no" class="text-amber-300 font-bold"></span> | মোবাইল: <span id="res-cust-phone" class="text-white font-semibold"></span>
+          </p>
+          <p class="text-xs text-emerald-300 mt-0.5">কেনাকাটার পরিমাণ: <span id="res-cust-amount" class="font-bold"></span></p>
+
+          <div class="my-4 p-4 rounded-2xl bg-gradient-to-r from-amber-500/15 via-yellow-500/20 to-amber-500/15 border border-amber-400/40">
+            <p class="text-[11px] text-amber-200/80 uppercase tracking-wider mb-1">আপনার জিতে নেওয়া উপহার</p>
+            <h3 id="res-prize-name" class="text-2xl font-extrabold text-amber-300"></h3>
+          </div>
+
+          <div class="p-3 rounded-xl bg-slate-950/80 border border-slate-800 text-[11px] text-slate-300 leading-relaxed space-y-1">
+            <p>📸 এই পেজটির একটি <strong>স্ক্রিনশট</strong> নিয়ে এবং আপনার <strong>মূল কুপন/মেমো</strong> দেখিয়ে শো-রুম থেকে উপহারটি বুঝে নিন।</p>
+            <p class="text-rose-400 font-semibold">* যোগাযোগ করুন শো-রুম এ। একবার ভুল করলে তা আর ব্যবহার হবে না।</p>
+          </div>
+        </div>
+
+      </div>
+    </main>
+
+  </div>
+
+  <!-- ফুটার (সিক্রেট বাটন সহ যাতে সাধারণ কাস্টমাররা কোনোভাবেই এডমিন প্যানেলে না যেতে পারে) -->
+  <footer class="py-5 text-center border-t border-emerald-900/40 mt-8">
+    <p onclick="secretFooterClick()" class="text-xs text-slate-500 select-none cursor-pointer">
+      ©2026-2027 • BrothersFC Gift Hub (Brother's Fashion City)
+    </p>
+  </footer>
+
+  <!-- 
+    ========================================================
+    এডমিন প্যানেল — এটি সম্পূর্ণ আলাদা ও গোপন পিন প্রটেক্টেড।
+    সাধারণ কাস্টমার কোনোভাবেই এখানে প্রবেশ করতে পারবে না।
+    ========================================================
+  -->
+  <div id="admin-modal" class="fixed inset-0 bg-black/90 backdrop-blur-md hidden z-50 flex items-center justify-center px-4 overflow-y-auto">
+    <div class="bg-slate-900 border border-emerald-800/80 rounded-3xl p-6 w-full max-w-2xl space-y-5 shadow-2xl my-8">
+      
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div>
+          <h2 class="text-base font-bold text-amber-400"><i class="fa-solid fa-user-shield mr-2"></i>গোপন এডমিন কন্ট্রোল প্যানেল</h2>
+          <p class="text-[11px] text-slate-400">কাস্টমারদের ভাঙানো কুপন লিস্ট ও পুরস্কার ম্যানেজমেন্ট</p>
+        </div>
+        <button onclick="closeAdminPanel()" class="px-3 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold transition">
+          <i class="fa-solid fa-xmark"></i> বন্ধ করুন
+        </button>
+      </div>
+
+      <!-- সামারি কার্ড -->
+      <div class="grid grid-cols-2 gap-3">
+        <div class="bg-slate-950 border border-emerald-800/40 p-3.5 rounded-2xl text-center">
+          <p class="text-xs text-slate-400">মোট ভাঙানো কুপন</p>
+          <p id="admin-stat-claimed" class="text-2xl font-bold text-amber-400 mt-1">0</p>
+        </div>
+        <div class="bg-slate-950 border border-emerald-800/40 p-3.5 rounded-2xl text-center">
+          <p class="text-xs text-slate-400">সর্বমোট কেনাকাটা</p>
+          <p id="admin-stat-total" class="text-2xl font-bold text-emerald-400 mt-1">৳0</p>
+        </div>
+      </div>
+
+      <!-- এডমিন ট্যাব -->
+      <div class="flex gap-2 bg-slate-950 p-1.5 rounded-2xl border border-emerald-800/40">
+        <button onclick="switchAdminTab('list')" id="adm-tab-list" class="flex-1 py-2 rounded-xl text-xs font-bold bg-amber-400 text-slate-950 transition">ভাঙানো কুপন লিস্ট</button>
+        <button onclick="switchAdminTab('prizes')" id="adm-tab-prizes" class="flex-1 py-2 rounded-xl text-xs font-bold text-slate-300 hover:bg-slate-800 transition">পুরস্কার সেটিংস</button>
+      </div>
+
+      <!-- ট্যাব ১: লিস্ট -->
+      <div id="adm-panel-list" class="space-y-3">
+        <div class="flex items-center justify-between">
+          <h3 class="text-xs font-bold text-amber-400">কাস্টমারদের ভাঙানো কুপনসমূহের লাইভ তালিকা</h3>
+          <input type="text" id="search-admin-list" oninput="renderAdminList()" placeholder="কুপন বা ফোন খুঁজুন..." class="bg-slate-950 border border-slate-700 rounded-lg px-3 py-1 text-xs text-white outline-none w-40" />
+        </div>
+        <div id="admin-list-container" class="space-y-2 max-h-72 overflow-y-auto pr-1"></div>
+      </div>
+
+      <!-- ট্যাব ২: পুরস্কার সেটিংস -->
+      <div id="adm-panel-prizes" class="hidden space-y-3">
+        <h3 class="text-xs font-bold text-amber-400">১৫০০ টাকা বা তার বেশি কেনাকাটার পুরস্কার লিস্ট (কমা দিয়ে লিখুন)</h3>
+        <div>
+          <label class="block text-[11px] text-amber-300 mb-1">১৫০০ - ২৫০০ টাকা পর্যন্ত পুরস্কার:</label>
+          <textarea id="edit-tier1" rows="2" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2 text-xs text-white outline-none"></textarea>
+        </div>
+        <div>
+          <label class="block text-[11px] text-amber-300 mb-1">২৫০১ - ৪৯৯৯ টাকা পর্যন্ত পুরস্কার:</label>
+          <textarea id="edit-tier2" rows="2" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2 text-xs text-white outline-none"></textarea>
+        </div>
+        <div>
+          <label class="block text-[11px] text-amber-300 mb-1">৫০০০ টাকা বা তার বেশি পুরস্কার:</label>
+          <textarea id="edit-tier3" rows="2" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2 text-xs text-white outline-none"></textarea>
+        </div>
+        <button onclick="saveAdminPrizes()" class="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs">
+          পুরস্কার লিস্ট সেভ করুন
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- পিন প্রম্পট মডাল (শুধুমাত্র ফুটারে ৫ বার ক্লিক করলে এডমিন পিন চাইবে) -->
+  <div id="pin-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-50 flex items-center justify-center px-4">
+    <div class="bg-slate-900 border border-emerald-800/60 rounded-3xl p-6 w-full max-w-xs text-center space-y-4 shadow-2xl">
+      <div class="w-12 h-12 mx-auto rounded-2xl bg-amber-400/15 border border-amber-400/30 flex items-center justify-center text-amber-400">
+        <i class="fa-solid fa-key text-xl"></i>
+      </div>
+      <h3 class="text-lg font-bold text-white">এডমিন পিন কোড</h3>
+      <p class="text-xs text-slate-400">গোপন পিন দিন (ডিফল্ট: 1234)</p>
+      <input type="password" id="pin-input" placeholder="••••" class="w-full text-center text-xl tracking-widest bg-slate-950 border border-slate-700 rounded-xl py-2 text-white outline-none focus:border-amber-400" />
+      <p id="pin-err" class="hidden text-xs text-rose-400">ভুল পিন কোড!</p>
+      <div class="flex gap-2">
+        <button onclick="closePinModal()" class="flex-1 py-2 rounded-xl bg-slate-800 text-slate-300 text-xs font-bold">বাতিল</button>
+        <button onclick="verifyAdminPin()" class="flex-1 py-2 rounded-xl bg-amber-400 text-slate-950 text-xs font-bold">প্রবেশ</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const DEFAULT_CONFIG = {
+      adminPin: "1234",
+      memoPrefix: "BFC2026-",
+      memoStartNum: 11340
+    };
+
+    const DEFAULT_PRIZES = {
+      tier1: ["চাবির রিং", "স্পেশাল পেন", "পারফিউম মিনি", "সাকুরা মাস্ক", "পকেট মিরর"],
+      tier2: ["বডি স্প্রে", "স্টাইলিশ মানিব্যাগ", "সানগ্লাস", "হাতঘড়ি", "স্পেশাল গিফট বক্স"],
+      tier3: ["প্রিমিয়াম পারফিউম", "ব্র্যান্ডেড টি-শার্ট", "স্মার্ট ওয়াচ", "লাক্সারি গিফট হ্যাম্পার"]
+    };
+
+    let config = { ...DEFAULT_CONFIG, ...(JSON.parse(localStorage.getItem("bfc_hub_cfg_v5")) || {}) };
+    let prizeList = { ...DEFAULT_PRIZES, ...(JSON.parse(localStorage.getItem("bfc_hub_prz_v5")) || {}) };
+    let coupons = JSON.parse(localStorage.getItem("bfc_hub_coupons_v5")) || {};
+    let activeCouponObj = null;
+    let footerTapCount = 0;
+
+    // ফোন নম্বরের প্রথম ৩ এবং শেষ ২ সংখ্যা রেখে মাঝখানে *** করা (যেমন: 017***45)
+    function maskPhoneNumber(phone) {
+      if (!phone || phone.length < 5) return "***";
+      const clean = phone.replace(/\D/g, "");
+      if (clean.length < 5) return "***";
+      const first3 = clean.slice(0, 3);
+      const last2 = clean.slice(-2);
+      return `${first3}***${last2}`;
+    }
+
+    function isStrictUppercase(str) {
+      return !/[a-z]/.test(str);
+    }
+
+    function pickPrizeByAmount(amount) {
+      let pool = prizeList.tier1;
+      if (amount >= 2501 && amount <= 4999) pool = prizeList.tier2;
+      else if (amount >= 5000) pool = prizeList.tier3;
+      return pool[Math.floor(Math.random() * pool.length)];
+    }
+
+    function matchesAutoHint(code) {
+      const prefix = config.memoPrefix || "BFC2026-";
+      const startNum = config.memoStartNum || 11340;
+      if (!code.startsWith(prefix)) return false;
+      const suffix = code.slice(prefix.length);
+      if (!/^\d+$/.test(suffix)) return false;
+      return parseInt(suffix, 10) >= startNum;
+    }
+
+    function initUI() {
+      document.getElementById("edit-tier1").value = prizeList.tier1.join(", ");
+      document.getElementById("edit-tier2").value = prizeList.tier2.join(", ");
+      document.getElementById("edit-tier3").value = prizeList.tier3.join(", ");
+      renderLiveCouponsFeed();
+    }
+
+    function switchView(viewName) {
+      const homeView = document.getElementById("view-home");
+      const portalView = document.getElementById("view-portal");
+      const homeBtn = document.getElementById("nav-home-btn");
+      const portalBtn = document.getElementById("nav-portal-btn");
+
+      if (viewName === 'home') {
+        homeView.classList.remove("hidden");
+        portalView.classList.add("hidden");
+        homeBtn.className = "px-3 py-1.5 rounded-xl bg-amber-400 text-slate-950 text-xs font-bold flex items-center gap-1.5 transition";
+        portalBtn.className = "px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-emerald-700/50 text-xs font-bold text-emerald-300 flex items-center gap-1.5 transition";
+        renderLiveCouponsFeed();
+      } else {
+        homeView.classList.add("hidden");
+        portalView.classList.remove("hidden");
+        portalBtn.className = "px-3 py-1.5 rounded-xl bg-amber-400 text-slate-950 text-xs font-bold flex items-center gap-1.5 transition";
+        homeBtn.className = "px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-emerald-700/50 text-xs font-bold text-emerald-300 flex items-center gap-1.5 transition";
+      }
+    }
+
+    // হোম পেজের লাইভ ফিডে ফোন নম্বর মাস্কিং করে দেখানো (প্রথম ৩ ও শেষ ২ সংখ্যা রেখে মাঝে ***)
+    function renderLiveCouponsFeed() {
+      const container = document.getElementById("live-coupons-container");
+      const list = Object.values(coupons).filter(c => c.used).reverse();
+
+      if (list.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-8 px-4 bg-slate-950/60 rounded-2xl border border-slate-800/80">
+            <i class="fa-solid fa-gift text-3xl text-amber-400/50 mb-2"></i>
+            <p class="text-xs text-slate-300 font-medium">এখনো কোনো কুপন ভাঙানো হয়নি।</p>
+            <p class="text-[11px] text-slate-500 mt-1">কাস্টমাররা পোর্টাল থেকে কুপন ভাঙানোর সাথে সাথে লাইভ ফিডে এখানে যুক্ত হবে!</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = list.map(c => `
+        <div class="p-3.5 rounded-2xl bg-slate-950 border border-emerald-800/40 flex items-center justify-between text-xs transition hover:border-amber-400/40">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="font-bold text-amber-400 text-sm">#${c.couponNo}</span>
+              <span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-[10px] font-bold">গিফট অর্জিত</span>
+            </div>
+            <p class="text-slate-300 mt-1"><i class="fa-solid fa-phone text-emerald-400 mr-1 text-[10px]"></i>${maskPhoneNumber(c.phone)} • কেনাকাটা: <span class="text-amber-300 font-bold">৳${c.amount}</span></p>
+            <p class="text-slate-500 text-[10px] mt-0.5">${c.claimedAt || c.date}</p>
+          </div>
+          <div class="text-right">
+            <span class="text-[10px] text-slate-400 block">উপহার:</span>
+            <span class="font-bold text-emerald-400 text-sm">${c.prize}</span>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    // কুপন যাচাইকরণ ও নিয়ম চেক
+    function checkCouponPrize() {
+      const rawCode = document.getElementById("cust-coupon-input").value.trim();
+      const phone = document.getElementById("cust-phone-input").value.trim();
+      const amountRaw = document.getElementById("cust-amount-input").value.trim();
+      const amount = parseFloat(amountRaw);
+      const alertBox = document.getElementById("cust-alert");
+
+      alertBox.classList.add("hidden");
+
+      if (!rawCode) {
+        alertBox.innerText = "⚠️ দয়া করে কুপন বা মেমো নম্বরটি লিখুন।";
+        alertBox.classList.remove("hidden");
+        return;
+      }
+
+      if (!isStrictUppercase(rawCode)) {
+        alertBox.innerHTML = `❌ ছোট হাতের লেখা গ্রহণযোগ্য নয়! সম্পূর্ণ <strong>বড় হাতের অক্ষরে (CAPITAL LETTERS)</strong> লিখুন।`;
+        alertBox.classList.remove("hidden");
+        return;
+      }
+
+      const cleanPhone = phone.replace(/\D/g, "");
+      if (!cleanPhone || cleanPhone.length < 11) {
+        alertBox.innerText = "⚠️ সঠিক ১১ সংখ্যার মোবাইল নাম্বার লেখা বাধ্যতামূলক!";
+        alertBox.classList.remove("hidden");
+        return;
+      }
+
+      if (!amountRaw || isNaN(amount) || amount <= 0) {
+        alertBox.innerText = "⚠️ কেনাকাটার সঠিক টাকার পরিমাণ লেখা বাধ্যতামূলক!";
+        alertBox.classList.remove("hidden");
+        return;
+      }
+
+      let cObj = coupons[rawCode] || null;
+
+      if (!cObj && matchesAutoHint(rawCode)) {
+        const prize = pickPrizeByAmount(amount);
+        cObj = {
+          couponNo: rawCode,
+          phone: cleanPhone,
+          amount: amount,
+          prize: prize,
+          used: false,
+          date: new Date().toLocaleDateString("bn-BD")
+        };
+        coupons[rawCode] = cObj;
+        localStorage.setItem("bfc_hub_coupons_v5", JSON.stringify(coupons));
+      }
+
+      if (!cObj) {
+        alertBox.innerHTML = `❌ দুঃখিত! এই কুপন নম্বরটি সঠিক নয় বা সিস্টেমের আওতাভুক্ত নয়।`;
+        alertBox.classList.remove("hidden");
+        return;
+      }
+
+      // একবার ভুল বা ব্যবহৃত হলে তা আর ব্যবহার হবে না চেক
+      if (cObj.used) {
+        alertBox.innerHTML = `⚠️ এই কুপন নম্বরটি (<strong>#${rawCode}</strong>) ইতিমধ্যে ব্যবহৃত বা ভাঙানো হয়ে গেছে! একবার ব্যবহার করলে তা আর পুনরায় ব্যবহার করা যায় না।`;
+        alertBox.classList.remove("hidden");
+        return;
+      }
+
+      activeCouponObj = { id: rawCode, ...cObj, phone: cleanPhone, amount: amount };
+      
+      document.getElementById("coupon-input-stage").classList.add("hidden");
+      document.getElementById("stage-coupon-no").innerText = "#" + rawCode;
+      document.getElementById("stage-cust-phone").innerText = cleanPhone;
+      document.getElementById("stage-cust-amount").innerText = "৳" + amount;
+
+      // শর্ত অনুযায়ী যদি ১৫০০ টাকার কম হয় (১ থেকে ১৪৯৯ টাকা), তবে বক্স ক্লিকে লেখা দেখাবে "আওতাভুক্ত না"
+      const titleEl = document.getElementById("box-title-text");
+      const btnLabel = document.getElementById("box-btn-label");
+
+      if (amount < 1500) {
+        titleEl.innerHTML = `<span class="text-rose-400">আপনার কেনাকাটা ৳${amount} — আপনি গিফটের আওতাভুক্ত নন!</span>`;
+        btnLabel.innerText = "আওতাভুক্ত না ❌";
+      } else {
+        titleEl.innerText = "আপনার কুপনে স্পেশাল গিফট রয়েছে!";
+        btnLabel.innerText = "বক্সটি খুলতে টাচ করুন 👆";
+      }
+
+      document.getElementById("gift-tap-stage").classList.remove("hidden");
+    }
+
+    // গিফট বক্স ওপেন (১৫০০ টাকার কম হলে ক্লিক করলে কাজ করবে না এবং আওতাভুক্ত না দেখাবে)
+    function revealCouponGift() {
+      if (!activeCouponObj) return;
+
+      if (activeCouponObj.amount < 1500) {
+        alert("দুঃখিত! ১৫০০ টাকার নিচে কেনাকাটা হওয়ায় আপনি গিফটের আওতাভুক্ত নন।");
+        return;
+      }
+
+      const cId = activeCouponObj.id;
+
+      activeCouponObj.used = true;
+      activeCouponObj.claimedAt = new Date().toLocaleString("bn-BD");
+
+      coupons[cId] = activeCouponObj;
+      localStorage.setItem("bfc_hub_coupons_v5", JSON.stringify(coupons));
+
+      document.getElementById("gift-tap-stage").classList.add("hidden");
+      document.getElementById("res-coupon-no").innerText = "#" + cId;
+      document.getElementById("res-cust-phone").innerText = activeCouponObj.phone;
+      document.getElementById("res-cust-amount").innerText = "৳" + activeCouponObj.amount;
+      document.getElementById("res-prize-name").innerText = activeCouponObj.prize;
+      document.getElementById("gift-result-stage").classList.remove("hidden");
+
+      fireConfetti();
+    }
+
+    // ফুটারে ৫ বার ক্লিক করলে গোপন এডমিন পিন প্রম্পট ওপেন হবে
+    function secretFooterClick() {
+      footerTapCount++;
+      if (footerTapCount >= 5) {
+        footerTapCount = 0;
+        openPinModal();
+      }
+    }
+
+    function openPinModal() {
+      document.getElementById("pin-err").classList.add("hidden");
+      document.getElementById("pin-input").value = "";
+      const m = document.getElementById("pin-modal");
+      m.classList.remove("hidden");
+    }
+
+    function closePinModal() {
+      document.getElementById("pin-modal").classList.add("hidden");
+    }
+
+    function verifyAdminPin() {
+      if (document.getElementById("pin-input").value.trim() === config.adminPin) {
+        closePinModal();
+        openAdminPanel();
+      } else {
+        document.getElementById("pin-err").classList.remove("hidden");
+      }
+    }
+
+    document.getElementById("pin-input").addEventListener("keypress", e => {
+      if (e.key === "Enter") verifyAdminPin();
+    });
+
+    function openAdminPanel() {
+      const m = document.getElementById("admin-modal");
+      m.classList.remove("hidden");
+      renderAdminList();
+    }
+
+    function closeAdminPanel() {
+      document.getElementById("admin-modal").classList.add("hidden");
+    }
+
+    function switchAdminTab(tab) {
+      if (tab === 'list') {
+        document.getElementById("adm-panel-list").classList.remove("hidden");
+        document.getElementById("adm-panel-prizes").classList.add("hidden");
+        document.getElementById("adm-tab-list").className = "flex-1 py-2 rounded-xl text-xs font-bold bg-amber-400 text-slate-950 transition";
+        document.getElementById("adm-tab-prizes").className = "flex-1 py-2 rounded-xl text-xs font-bold text-slate-300 hover:bg-slate-800 transition";
+        renderAdminList();
+      } else {
+        document.getElementById("adm-panel-list").classList.add("hidden");
+        document.getElementById("adm-panel-prizes").classList.remove("hidden");
+        document.getElementById("adm-tab-prizes").className = "flex-1 py-2 rounded-xl text-xs font-bold bg-amber-400 text-slate-950 transition";
+        document.getElementById("adm-tab-list").className = "flex-1 py-2 rounded-xl text-xs font-bold text-slate-300 hover:bg-slate-800 transition";
+      }
+    }
+
+    function renderAdminList() {
+      const container = document.getElementById("admin-list-container");
+      const query = (document.getElementById("search-admin-list").value || "").toLowerCase();
+      const claimed = Object.values(coupons).filter(c => c.used).reverse().filter(c =>
+        (c.couponNo || "").toLowerCase().includes(query) || (c.phone || "").toLowerCase().includes(query)
+      );
+
+      let totalAmt = 0;
+      Object.values(coupons).filter(c => c.used).forEach(c => {
+        totalAmt += parseFloat(c.amount) || 0;
+      });
+
+      document.getElementById("admin-stat-claimed").innerText = claimed.length;
+      document.getElementById("admin-stat-total").innerText = "৳" + totalAmt;
+
+      if (claimed.length === 0) {
+        container.innerHTML = `<p class="text-xs text-slate-500 text-center py-6">এখনো কোনো কুপন ভাঙানো হয়নি।</p>`;
+        return;
+      }
+
+      container.innerHTML = claimed.map(c => `
+        <div class="p-3 rounded-2xl bg-slate-950 border border-emerald-500/30 flex items-center justify-between text-xs">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="font-bold text-amber-400">#${c.couponNo}</span>
+              <span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-[10px]">ভাঙানো হয়েছে</span>
+            </div>
+            <p class="text-slate-300 mt-0.5"><i class="fa-solid fa-phone text-emerald-400 mr-1 text-[10px]"></i>${c.phone} • <span class="text-amber-300 font-bold">৳${c.amount}</span></p>
+            <p class="text-slate-500 text-[10px] mt-0.5">সময়: ${c.claimedAt || c.date}</p>
+          </div>
+          <div class="text-right">
+            <span class="text-[10px] text-slate-400 block">গিফট:</span>
+            <span class="font-bold text-emerald-400">${c.prize}</span>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function saveAdminPrizes() {
+      prizeList.tier1 = document.getElementById("edit-tier1").value.split(",").map(i => i.trim()).filter(Boolean);
+      prizeList.tier2 = document.getElementById("edit-tier2").value.split(",").map(i => i.trim()).filter(Boolean);
+      prizeList.tier3 = document.getElementById("edit-tier3").value.split(",").map(i => i.trim()).filter(Boolean);
+      localStorage.setItem("bfc_hub_prz_v5", JSON.stringify(prizeList));
+      alert("পুরস্কার লিস্ট সফলভাবে সেভ হয়েছে!");
+    }
+
+    function fireConfetti() {
+      const canvas = document.getElementById("confetti-canvas");
+      const ctx = canvas.getContext("2d");
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      const colors = ["#fbbf24", "#34d399", "#f43f5e", "#38bdf8", "#a78bfa"];
+      const particles = Array.from({ length: 140 }, () => ({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height - canvas.height,
+        r: Math.random() * 6 + 4,
+        c: colors[Math.floor(Math.random() * colors.length)],
+        v: Math.random() * 4 + 2.5
+      }));
+      let count = 0;
+      function render() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach(p => {
+          ctx.fillStyle = p.c;
+          ctx.fillRect(p.x, p.y, p.r, p.r * 0.6);
+          p.y += p.v;
+        });
+        count++;
+        if (count < 220) requestAnimationFrame(render);
+        else ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+      render();
+    }
+
+    initUI();
+  </script>
+</body>
+</html>
