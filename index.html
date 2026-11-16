@@ -7,6 +7,9 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <style>
     body {
       font-family: 'Hind Siliguri', sans-serif;
@@ -124,7 +127,7 @@
             <i class="fa-solid fa-bolt text-yellow-400 animate-pulse"></i> চলমান কুপন ও গিফট তালিকা
           </h3>
           <span class="text-[11px] text-emerald-400 font-semibold bg-emerald-950/80 px-2.5 py-1 rounded-full border border-emerald-700/50">
-            <i class="fa-solid fa-circle text-[8px] text-emerald-400 animate-ping mr-1"></i> লাইভ আপডেট
+            <i class="fa-solid fa-circle text-[8px] text-emerald-400 animate-ping mr-1"></i> লাইভ ডাটাবেস
           </span>
         </div>
         <p class="text-[11px] text-slate-400">শো-রুমের কাস্টমারদের জন্য ইস্যুকৃত সকল লাইভ কুপন ও তাদের উপহার এখানে প্রদর্শিত হচ্ছে (নম্বর গোপন রাখা হয়েছে):</p>
@@ -193,7 +196,7 @@
           <div id="cust-alert" class="hidden mt-4 p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs text-center font-medium leading-relaxed"></div>
         </div>
 
-        <!-- গিফট বক্স ওপেনিং স্টেজ (১৫০০ টাকার কম হলে এখানে বক্স ক্লিক করলে আওতাভুক্ত না দেখাবে) -->
+        <!-- গিফট বক্স ওপেনিং স্টেজ -->
         <div id="gift-tap-stage" class="hidden text-center py-6">
           <p class="text-xs text-emerald-300 font-semibold mb-1">কুপন নম্বর: <span id="stage-coupon-no" class="text-amber-400 font-bold"></span></p>
           <p class="text-[11px] text-slate-400 mb-4">মোবাইল: <span id="stage-cust-phone" class="text-slate-200"></span> • কেনাকাটা: <span id="stage-cust-amount" class="text-emerald-400 font-bold"></span></p>
@@ -238,26 +241,21 @@
 
   </div>
 
-  <!-- ফুটার (সিক্রেট বাটন সহ যাতে সাধারণ কাস্টমাররা কোনোভাবেই এডমিন প্যানেলে না যেতে পারে) -->
+  <!-- ফুটার -->
   <footer class="py-5 text-center border-t border-emerald-900/40 mt-8">
     <p onclick="secretFooterClick()" class="text-xs text-slate-500 select-none cursor-pointer">
-      ©2026-2027 • BrothersFC Gift Hub (Brother's Fashion City)
+      ©2026-2027 • BrothersFC Gift Hub (Brother's Fashion City) • Help Line : 01700787092
     </p>
   </footer>
 
-  <!-- 
-    ========================================================
-    এডমিন প্যানেল — এটি সম্পূর্ণ আলাদা ও গোপন পিন প্রটেক্টেড।
-    সাধারণ কাস্টমার কোনোভাবেই এখানে প্রবেশ করতে পারবে না।
-    ========================================================
-  -->
+  <!-- এডমিন প্যানেল -->
   <div id="admin-modal" class="fixed inset-0 bg-black/90 backdrop-blur-md hidden z-50 flex items-center justify-center px-4 overflow-y-auto">
     <div class="bg-slate-900 border border-emerald-800/80 rounded-3xl p-6 w-full max-w-2xl space-y-5 shadow-2xl my-8">
       
       <div class="flex items-center justify-between border-b border-slate-800 pb-3">
         <div>
           <h2 class="text-base font-bold text-amber-400"><i class="fa-solid fa-user-shield mr-2"></i>গোপন এডমিন কন্ট্রোল প্যানেল</h2>
-          <p class="text-[11px] text-slate-400">কাস্টমারদের ভাঙানো কুপন লিস্ট ও পুরস্কার ম্যানেজমেন্ট</p>
+          <p class="text-[11px] text-slate-400">কাস্টমারদের ভাঙানো কুপন লিস্ট ও পুরস্কার ম্যানেজমেন্ট (ক্লাউড সিঙ্ক)</p>
         </div>
         <button onclick="closeAdminPanel()" class="px-3 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold transition">
           <i class="fa-solid fa-xmark"></i> বন্ধ করুন
@@ -314,7 +312,7 @@
     </div>
   </div>
 
-  <!-- পিন প্রম্পট মডাল (শুধুমাত্র ফুটারে ৫ বার ক্লিক করলে এডমিন পিন চাইবে) -->
+  <!-- পিন প্রম্পট মডাল -->
   <div id="pin-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-50 flex items-center justify-center px-4">
     <div class="bg-slate-900 border border-emerald-800/60 rounded-3xl p-6 w-full max-w-xs text-center space-y-4 shadow-2xl">
       <div class="w-12 h-12 mx-auto rounded-2xl bg-amber-400/15 border border-amber-400/30 flex items-center justify-center text-amber-400">
@@ -332,6 +330,14 @@
   </div>
 
   <script>
+    // Firebase কনফিগারেশন (আপনার ডাটাবেস লিংক যুক্ত করা হয়েছে)
+    const firebaseConfig = {
+      databaseURL: "https://brothers-fashion-city-default-rtdb.firebaseio.com"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
     const DEFAULT_CONFIG = {
       adminPin: "1234",
       memoPrefix: "BFC2026-",
@@ -344,13 +350,34 @@
       tier3: ["প্রিমিয়াম পারফিউম", "ব্র্যান্ডেড টি-শার্ট", "স্মার্ট ওয়াচ", "লাক্সারি গিফট হ্যাম্পার"]
     };
 
-    let config = { ...DEFAULT_CONFIG, ...(JSON.parse(localStorage.getItem("bfc_hub_cfg_v5")) || {}) };
-    let prizeList = { ...DEFAULT_PRIZES, ...(JSON.parse(localStorage.getItem("bfc_hub_prz_v5")) || {}) };
-    let coupons = JSON.parse(localStorage.getItem("bfc_hub_coupons_v5")) || {};
+    let config = { ...DEFAULT_CONFIG };
+    let prizeList = { ...DEFAULT_PRIZES };
+    let coupons = {};
     let activeCouponObj = null;
     let footerTapCount = 0;
 
-    // ফোন নম্বরের প্রথম ৩ এবং শেষ ২ সংখ্যা রেখে মাঝখানে *** করা (যেমন: 017***45)
+    // রিয়েলটাইম ডাটাবেস থেকে ডেটা সিনক করা
+    db.ref("coupons").on("value", (snapshot) => {
+      coupons = snapshot.val() || {};
+      renderLiveCouponsFeed();
+      if (!document.getElementById("admin-modal").classList.contains("hidden")) {
+        renderAdminList();
+      }
+    });
+
+    db.ref("prizes").on("value", (snapshot) => {
+      const p = snapshot.val();
+      if (p) {
+        prizeList = p;
+        document.getElementById("edit-tier10").value = (prizeList.tier1 || []).join(", ");
+        document.getElementById("edit-tier1").value = (prizeList.tier1 || []).join(", ");
+        document.getElementById("edit-tier2").value = (prizeList.tier2 || []).join(", ");
+        document.getElementById("edit-tier3").value = (prizeList.tier3 || []).join(", ");
+      } else {
+        db.ref("prizes").set(DEFAULT_PRIZES);
+      }
+    });
+
     function maskPhoneNumber(phone) {
       if (!phone || phone.length < 5) return "***";
       const clean = phone.replace(/\D/g, "");
@@ -365,9 +392,9 @@
     }
 
     function pickPrizeByAmount(amount) {
-      let pool = prizeList.tier1;
-      if (amount >= 2501 && amount <= 4999) pool = prizeList.tier2;
-      else if (amount >= 5000) pool = prizeList.tier3;
+      let pool = prizeList.tier1 || DEFAULT_PRIZES.tier1;
+      if (amount >= 2501 && amount <= 4999) pool = prizeList.tier2 || DEFAULT_PRIZES.tier2;
+      else if (amount >= 5000) pool = prizeList.tier3 || DEFAULT_PRIZES.tier3;
       return pool[Math.floor(Math.random() * pool.length)];
     }
 
@@ -381,9 +408,9 @@
     }
 
     function initUI() {
-      document.getElementById("edit-tier1").value = prizeList.tier1.join(", ");
-      document.getElementById("edit-tier2").value = prizeList.tier2.join(", ");
-      document.getElementById("edit-tier3").value = prizeList.tier3.join(", ");
+      document.getElementById("edit-tier1").value = (prizeList.tier1 || DEFAULT_PRIZES.tier1).join(", ");
+      document.getElementById("edit-tier2").value = (prizeList.tier2 || DEFAULT_PRIZES.tier2).join(", ");
+      document.getElementById("edit-tier3").value = (prizeList.tier3 || DEFAULT_PRIZES.tier3).join(", ");
       renderLiveCouponsFeed();
     }
 
@@ -407,7 +434,6 @@
       }
     }
 
-    // হোম পেজের লাইভ ফিডে ফোন নম্বর মাস্কিং করে দেখানো (প্রথম ৩ ও শেষ ২ সংখ্যা রেখে মাঝে ***)
     function renderLiveCouponsFeed() {
       const container = document.getElementById("live-coupons-container");
       const list = Object.values(coupons).filter(c => c.used).reverse();
@@ -441,7 +467,6 @@
       `).join("");
     }
 
-    // কুপন যাচাইকরণ ও নিয়ম চেক
     function checkCouponPrize() {
       const rawCode = document.getElementById("cust-coupon-input").value.trim();
       const phone = document.getElementById("cust-phone-input").value.trim();
@@ -488,8 +513,7 @@
           used: false,
           date: new Date().toLocaleDateString("bn-BD")
         };
-        coupons[rawCode] = cObj;
-        localStorage.setItem("bfc_hub_coupons_v5", JSON.stringify(coupons));
+        db.ref("coupons/" + rawCode).set(cObj);
       }
 
       if (!cObj) {
@@ -498,7 +522,6 @@
         return;
       }
 
-      // একবার ভুল বা ব্যবহৃত হলে তা আর ব্যবহার হবে না চেক
       if (cObj.used) {
         alertBox.innerHTML = `⚠️ এই কুপন নম্বরটি (<strong>#${rawCode}</strong>) ইতিমধ্যে ব্যবহৃত বা ভাঙানো হয়ে গেছে! একবার ব্যবহার করলে তা আর পুনরায় ব্যবহার করা যায় না।`;
         alertBox.classList.remove("hidden");
@@ -512,7 +535,6 @@
       document.getElementById("stage-cust-phone").innerText = cleanPhone;
       document.getElementById("stage-cust-amount").innerText = "৳" + amount;
 
-      // শর্ত অনুযায়ী যদি ১৫০০ টাকার কম হয় (১ থেকে ১৪৯৯ টাকা), তবে বক্স ক্লিকে লেখা দেখাবে "আওতাভুক্ত না"
       const titleEl = document.getElementById("box-title-text");
       const btnLabel = document.getElementById("box-btn-label");
 
@@ -527,7 +549,6 @@
       document.getElementById("gift-tap-stage").classList.remove("hidden");
     }
 
-    // গিফট বক্স ওপেন (১৫০০ টাকার কম হলে ক্লিক করলে কাজ করবে না এবং আওতাভুক্ত না দেখাবে)
     function revealCouponGift() {
       if (!activeCouponObj) return;
 
@@ -538,23 +559,31 @@
 
       const cId = activeCouponObj.id;
 
-      activeCouponObj.used = true;
-      activeCouponObj.claimedAt = new Date().toLocaleString("bn-BD");
+      // ডাটাবেস চেক করে ডাবল ক্লিকের হাত থেকে রক্ষা করা
+      db.ref("coupons/" + cId).once("value", (snapshot) => {
+        const currentData = snapshot.val();
+        if (currentData && currentData.used) {
+          alert("⚠️ এই কুপনটি ইতিমধ্যে অন্য কোথাও থেকে ব্যবহার করা হয়ে গেছে!");
+          location.reload();
+          return;
+        }
 
-      coupons[cId] = activeCouponObj;
-      localStorage.setItem("bfc_hub_coupons_v5", JSON.stringify(coupons));
+        activeCouponObj.used = true;
+        activeCouponObj.claimedAt = new Date().toLocaleString("bn-BD");
 
-      document.getElementById("gift-tap-stage").classList.add("hidden");
-      document.getElementById("res-coupon-no").innerText = "#" + cId;
-      document.getElementById("res-cust-phone").innerText = activeCouponObj.phone;
-      document.getElementById("res-cust-amount").innerText = "৳" + activeCouponObj.amount;
-      document.getElementById("res-prize-name").innerText = activeCouponObj.prize;
-      document.getElementById("gift-result-stage").classList.remove("hidden");
+        db.ref("coupons/" + cId).set(activeCouponObj);
 
-      fireConfetti();
+        document.getElementById("gift-tap-stage").classList.add("hidden");
+        document.getElementById("res-coupon-no").innerText = "#" + cId;
+        document.getElementById("res-cust-phone").innerText = activeCouponObj.phone;
+        document.getElementById("res-cust-amount").innerText = "৳" + activeCouponObj.amount;
+        document.getElementById("res-prize-name").innerText = activeCouponObj.prize;
+        document.getElementById("gift-result-stage").classList.remove("hidden");
+
+        fireConfetti();
+      });
     }
 
-    // ফুটারে ৫ বার ক্লিক করলে গোপন এডমিন পিন প্রম্পট ওপেন হবে
     function secretFooterClick() {
       footerTapCount++;
       if (footerTapCount >= 5) {
@@ -651,11 +680,13 @@
     }
 
     function saveAdminPrizes() {
-      prizeList.tier1 = document.getElementById("edit-tier1").value.split(",").map(i => i.trim()).filter(Boolean);
-      prizeList.tier2 = document.getElementById("edit-tier2").value.split(",").map(i => i.trim()).filter(Boolean);
-      prizeList.tier3 = document.getElementById("edit-tier3").value.split(",").map(i => i.trim()).filter(Boolean);
-      localStorage.setItem("bfc_hub_prz_v5", JSON.stringify(prizeList));
-      alert("পুরস্কার লিস্ট সফলভাবে সেভ হয়েছে!");
+      const t1 = document.getElementById("edit-tier1").value.split(",").map(i => i.trim()).filter(Boolean);
+      const t2 = document.getElementById("edit-tier2").value.split(",").map(i => i.trim()).filter(Boolean);
+      const t3 = document.getElementById("edit-tier3").value.split(",").map(i => i.trim()).filter(Boolean);
+      
+      const newPrizes = { tier1: t1, tier2: t2, tier3: t3 };
+      db.ref("prizes").set(newPrizes);
+      alert("পুরস্কার লিস্ট সফলভাবে ক্লাউড ডাটাবেসে সেভ হয়েছে!");
     }
 
     function fireConfetti() {
